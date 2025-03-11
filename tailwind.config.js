@@ -34,10 +34,9 @@ function createFontSizes() {
   const sizes = {}
 
   for (let i = FONT_SIZES_START; i <= FONT_SIZES_END; i++) {
-    const lineHeight = i + LINE_HEIGHT_SPACE + UNIT
-    const fontSize = i + UNIT
+     const fontSize = i + UNIT
 
-    sizes[i] = [fontSize, lineHeight]
+    sizes[i] = fontSize
   }
 
   return sizes
