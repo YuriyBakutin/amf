@@ -8,20 +8,55 @@
     password: '',
   })
 
-  const error = ref(true)
-  const accountIsReady = ref(true)
+  const error = ref({
+    type: false,
+    login: false,
+    password: false,
+  })
+
+  const accountIsReady = ref(false)
   const isLdap = computed(() => account.value.type === 'LDAP')
   const typeListOptions = typeList.map((item) => ({ text: item, value: item }))
 
   const onFocus = (fieldName) => {
-    console.log(`—> onFocus('${fieldName}')`)
+    error.value[fieldName] = false
   }
 
-  const onBlur = (fieldName) => {
-    console.log(`—> onBlur('${fieldName}')`)
+  const onInput = (fieldName: keyof typeof account.value) => {
+    validateField(fieldName)
+  }
+
+  const validateField = (fieldName: keyof typeof account.value) => {
+    if (['login', 'password'].includes(fieldName)) {
+      error.value[fieldName] = !account.value[fieldName]
+    }
+
+    if (
+      (account.value.login && account.value.password) ||
+      fieldName === 'type'
+    ) {
+      error.value.type = account.value.type === ''
+    }
+
+    accountIsReady.value =
+      account.value.login &&
+      (account.value.password || account.value.type === 'LDAP') &&
+      !error.value.type
+
+    if (accountIsReady.value) {
+      saveAccount()
+    }
+  }
+
+  const saveAccount = () => {
+    console.log('—> saveAccount()')
   }
 
   const deleteAccount = () => {
+    if (!accountIsReady.value) {
+      return
+    }
+
     console.log('—> deleteAccount()')
   }
 </script>
@@ -33,33 +68,39 @@
     <van-field
       v-model="account.mark"
       placeholder="Метка"
-      :error="error"
       type="textarea"
       rows="1"
       autosize
+      maxlength="50"
       @focus="onFocus('mark')"
-      @blur="onBlur('mark')"
+      @blur="onInput('mark')"
     />
-    <van-dropdown-menu class="w-full" :class="{ error }">
-      <van-dropdown-item v-model="account.type" :options="typeListOptions" />
+    <van-dropdown-menu class="w-full" :class="{ error: error.type }">
+      <van-dropdown-item
+        v-model="account.type"
+        :options="typeListOptions"
+        @update:modelValue="onInput('mark')"
+      />
     </van-dropdown-menu>
     <van-field
       v-model="account.login"
       placeholder="Логин"
-      :error="error"
+      :error="error.login"
+      maxlength="100"
       class="border border-solid border-gray-6 rounded-6"
       :class="{ 'col-span-2': isLdap }"
       @focus="onFocus('login')"
-      @blur="onBlur('login')"
+      @blur="onInput('login')"
     />
     <van-field
       v-if="!isLdap"
       v-model="account.password"
       placeholder="Пароль"
-      :error="error"
+      :error="error.password"
+      maxlength="100"
       class="border border-solid border-gray-6 rounded-6"
       @focus="onFocus('password')"
-      @blur="onBlur('password')"
+      @blur="onInput('password')"
     />
     <van-icon
       name="delete-o"
