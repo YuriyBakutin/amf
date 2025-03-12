@@ -79,3 +79,7 @@
 .in-table .van-dropdown-menu.error .van-dropdown-menu__title:after {
   border-color: transparent transparent var(--van-red) var(--van-red);
 }
+
+.van-button--default {
+  border-color: var(--van-gray-6);
+}
