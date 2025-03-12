@@ -1,7 +1,3 @@
-.in-table .van-dropdown-menu__bar {
-  height: 30px;
-}
-
 .in-table .van-cell {
   padding: 0 6px;
   align-items: center;
@@ -30,13 +26,18 @@
 }
 
 .in-table .van-dropdown-menu__bar {
-  height: 30px;
+  height: 28px;
   border-width: 1px;
   border-style: solid;
   border-color: var(--van-gray-6);
   border-radius: 6px;
   box-shadow: none;
   position: relative;
+}
+
+.in-table .van-dropdown-menu__title {
+  font-size: 14px;
+  line-height: 18px;
 }
 
 .in-table .van-dropdown-menu.error .van-dropdown-menu__bar {
