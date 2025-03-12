@@ -1,7 +1,18 @@
 <script setup lang="ts">
   import type { IEditedAccount } from '@/types/account'
 
-  const accountInStore = useAccountStore()
+  const emit = defineEmits(['saved', 'loginAlreadyExistsError', 'close'])
+
+  const props = withDefaults(
+    defineProps<{
+      login?: string
+    }>(),
+    {
+      login: '',
+    },
+  )
+
+  const accountStore = useAccountStore()
 
   const account: IEditedAccount = ref({
     mark: '',
@@ -24,13 +35,26 @@
     error.value[fieldName] = false
   }
 
+  const loginAlreadyExists = computed(
+    () => !!accountStore.getAccountByLogin(account.value.login) && !props.login,
+  )
+
   const onInput = (fieldName: keyof typeof account.value) => {
     validateField(fieldName)
   }
 
   const validateField = (fieldName: keyof typeof account.value) => {
-    if (['login', 'password'].includes(fieldName)) {
-      error.value[fieldName] = !account.value[fieldName]
+    if (fieldName === 'login') {
+      error.value.login = !account.value.login || loginAlreadyExists.value
+
+      if (loginAlreadyExists.value) {
+        emit('loginAlreadyExistsError')
+      }
+    }
+
+    if (fieldName === 'password') {
+      console.log('account.value.password: ', account.value.password)
+      error.value.password = !account.value.password
     }
 
     if (
@@ -53,67 +77,78 @@
   const saveAccount = () => {
     console.log('—> saveAccount()')
 
-    accountInStore.putAccount({
+    accountStore.putAccount({
       ...account.value,
       mark: accountMarkToStoreFormat(account.value.mark),
     })
+
+    emit('saved')
   }
 
   const deleteAccount = () => {
-    if (!accountIsReady.value) {
+    if (!accountIsReady.value && !props.login) {
+      emit('close')
+
       return
     }
 
-    console.log('—> deleteAccount()')
-
-    accountInStore.deleteAccount(account.value.login)
+    accountStore.deleteAccount(account.value.login)
   }
+
+  onBeforeMount(() => {
+    if (props.login) {
+      const accountFromStore = accountStore.getAccountByLogin(props.login)
+
+      if (accountFromStore) {
+        account.value = {
+          ...accountFromStore,
+          mark: accountFromStore.mark.map((item) => item.text).join('; '),
+        }
+      }
+    }
+  })
 </script>
 
 <template>
-  <div
-    class="grid grid-cols-[26fr_18fr_26fr_26fr_minmax(24px,24px)] gap-10 w-full h-24 px-20 in-table place-items-center"
-  >
-    <van-field
-      v-model="account.mark"
-      placeholder="Метка"
-      type="textarea"
-      rows="1"
-      autosize
-      maxlength="50"
-      @focus="onFocus('mark')"
-      @blur="onInput('mark')"
+  <van-field
+    v-model="account.mark"
+    placeholder="Метка"
+    type="textarea"
+    rows="1"
+    autosize
+    maxlength="50"
+    @focus="onFocus('mark')"
+    @blur="onInput('mark')"
+  />
+  <van-dropdown-menu class="w-full" :class="{ error: error.type }">
+    <van-dropdown-item
+      v-model="account.type"
+      :options="typeListOptions"
+      @update:modelValue="onInput('mark')"
     />
-    <van-dropdown-menu class="w-full" :class="{ error: error.type }">
-      <van-dropdown-item
-        v-model="account.type"
-        :options="typeListOptions"
-        @update:modelValue="onInput('mark')"
-      />
-    </van-dropdown-menu>
-    <van-field
-      v-model="account.login"
-      placeholder="Логин"
-      :error="error.login"
-      maxlength="100"
-      class="border border-solid border-gray-6 rounded-6"
-      :class="{ 'col-span-2': isLdap }"
-      @focus="onFocus('login')"
-      @blur="onInput('login')"
-    />
-    <PasswordField
-      v-if="!isLdap"
-      :modelValue="account.password"
-      :error="error.password"
-      maxlength="100"
-      @focus="onFocus('password')"
-      @blur="onInput('password')"
-    />
-    <van-icon
-      name="delete-o"
-      size="24"
-      :class="accountIsReady ? 'text-black cursor-pointer' : 'text-gray-6'"
-      @click="deleteAccount"
-    />
-  </div>
+  </van-dropdown-menu>
+  <TextField
+    v-model="account.login"
+    :error="error.login"
+    :disabled="!!props.login"
+    maxlength="100"
+    :class="{ 'col-span-2': isLdap }"
+    @focus="onFocus('login')"
+    @blur="onInput('login')"
+  />
+  <TextField
+    v-if="!isLdap"
+    v-model="account.password"
+    :error="error.password"
+    maxlength="100"
+    asPassword
+    @focus="onFocus('password')"
+    @blur="onInput('password')"
+  />
+  <van-icon
+    name="delete-o"
+    size="24"
+    class="text-black cursor-pointer"
+    @click="deleteAccount"
+  />
 </template>

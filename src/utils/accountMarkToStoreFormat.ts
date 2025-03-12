@@ -1,3 +1,6 @@
 export const accountMarkToStoreFormat = (mark: string) => {
-  return mark.split(';').map((item) => ({ text: item }))
+  return mark
+    .replace(/[ \t]/g, '')
+    .split(';')
+    .map((item) => ({ text: item }))
 }

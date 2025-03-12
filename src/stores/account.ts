@@ -36,6 +36,9 @@ export const useAccountStore = defineStore('account', {
       this.accounts.splice(index, 1)
     },
   },
-  getters: {},
+  getters: {
+    getAccountByLogin: (state) => (login: string) =>
+      state.accounts.find((account) => account.login === login),
+  },
   persist: true, // Saving to localStorage
 })

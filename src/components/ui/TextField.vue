@@ -5,10 +5,14 @@
     modelValue: string
     error: boolean
     maxlength: number | string
+    disabled: boolean
+    asPassword: boolean
   }>()
 
   const modelValue = ref(props.modelValue)
-  const inputType = ref('text' as 'text' | 'password')
+  const inputType = ref(
+    props.asPassword ? 'password' : ('text' as 'text' | 'password'),
+  )
 
   const filterInput = (input: string) => {
     return input.replace(/[^a-zA-Z0-9`~!@#$%^&*()_+={}|\[\]\\:;"'<>,.?/]/g, '')
@@ -19,6 +23,7 @@
     const filteredValue = filterInput(inputElement.value)
 
     modelValue.value = filteredValue
+    console.log('filteredValue: ', filteredValue)
 
     emit('update:modelValue', filteredValue)
   }
@@ -37,8 +42,8 @@
 
 <template>
   <div
-    class="relative w-full van-field align-middle pl-6 pr-32 text-14 leading-[24px]"
-    :class="{ 'van-field--error': error }"
+    class="relative w-full van-field align-middle pl-6 pr-6 text-14 leading-[24px]"
+    :class="{ 'van-field--error': error, 'pr-32': props.asPassword }"
   >
     <input
       :type="inputType"
@@ -56,6 +61,7 @@
       class="absolute w-18 h-18 right-6 top-1/2 transform -translate-y-1/2 cursor-pointer"
     >
       <van-icon
+        v-if="props.asPassword"
         :name="inputType === 'password' ? 'closed-eye' : 'eye-o'"
         size="18"
         :color="error ? 'var(--van-danger-color)' : 'var(--van-gray-6)'"
