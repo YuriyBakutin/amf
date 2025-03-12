@@ -3,10 +3,10 @@
 
   const props = defineProps<{
     modelValue: string
-    error: boolean
-    maxlength: number | string
-    disabled: boolean
-    asPassword: boolean
+    error?: boolean
+    maxlength?: number | string
+    disabled?: boolean
+    asPassword?: boolean
   }>()
 
   const modelValue = ref(props.modelValue)
@@ -14,16 +14,27 @@
     props.asPassword ? 'password' : ('text' as 'text' | 'password'),
   )
 
+  const inputRef = ref<HTMLInputElement>()
+
   const filterInput = (input: string) => {
     return input.replace(/[^a-zA-Z0-9`~!@#$%^&*()_+={}|\[\]\\:;"'<>,.?/]/g, '')
   }
 
-  const onInput = (event: Event) => {
-    const inputElement = event.target as HTMLInputElement
-    const filteredValue = filterInput(inputElement.value)
+  const onInput = async () => {
+    const inputElement = inputRef.value as HTMLInputElement
 
+    if (props.disabled) {
+      const oldText = props.modelValue
+
+      emit('update:modelValue', inputElement.value)
+      await nextTick()
+      emit('update:modelValue', oldText)
+
+      return
+    }
+
+    const filteredValue = filterInput(inputElement.value)
     modelValue.value = filteredValue
-    console.log('filteredValue: ', filteredValue)
 
     emit('update:modelValue', filteredValue)
   }
@@ -43,16 +54,21 @@
 <template>
   <div
     class="relative w-full van-field align-middle pl-6 pr-6 text-14 leading-[24px]"
-    :class="{ 'van-field--error': error, 'pr-32': props.asPassword }"
+    :class="{
+      'van-field--error': error,
+      'pr-32': props.asPassword,
+      'bg-gray-4': disabled,
+    }"
   >
     <input
+      ref="inputRef"
       :type="inputType"
       v-model="modelValue"
       :maxlength="props.maxlength"
       @input="onInput"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
-      class="van-field__control h-24 mt-2"
+      class="van-field__control h-24 mt-2 bg-gray-3"
       placeholder="Введите текст"
     />
     <button
