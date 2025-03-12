@@ -1,6 +1,8 @@
 <script setup lang="ts">
   import type { IEditedAccount } from '@/types/account'
 
+  const accountInStore = useAccountStore()
+
   const account: IEditedAccount = ref({
     mark: '',
     type: '',
@@ -50,6 +52,11 @@
 
   const saveAccount = () => {
     console.log('—> saveAccount()')
+
+    accountInStore.putAccount({
+      ...account.value,
+      mark: accountMarkToStoreFormat(account.value.mark),
+    })
   }
 
   const deleteAccount = () => {
@@ -58,6 +65,8 @@
     }
 
     console.log('—> deleteAccount()')
+
+    accountInStore.deleteAccount(account.value.login)
   }
 </script>
 

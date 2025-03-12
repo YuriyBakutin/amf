@@ -7,14 +7,33 @@ export const useAccountStore = defineStore('account', {
     editedAccount: {} as IAccount,
   }),
   actions: {
-    addAccount(account: IAccount) {
+    putAccount(account: IAccount) {
+      const login = account.login
+
+      const existingAccountIndex = this.accounts.findIndex(
+        (account) => account.login === login,
+      )
+
+      if (existingAccountIndex !== -1) {
+        this.accounts[existingAccountIndex] = account
+
+        return
+      }
+
       this.accounts.push(account)
     },
     deleteAccount(login: string) {
-      this.accounts.splice(
-        this.accounts.findIndex((account) => account.login === login),
-        1,
+      const index = this.accounts.findIndex(
+        (account) => account.login === login,
       )
+
+      if (index === -1) {
+        console.error(`Аккаунта с логином '${login}' не существует`)
+
+        return
+      }
+
+      this.accounts.splice(index, 1)
     },
   },
   getters: {},
