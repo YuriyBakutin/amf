@@ -24,6 +24,11 @@
   margin-top: 2px;
 }
 
+.in-table .van-field__control:disabled {
+  color: var(--van-gray-7);
+  -webkit-text-fill-color: var(--van-gray-7);
+}
+
 .in-table .van-dropdown-menu__bar {
   height: 30px;
   border-width: 1px;

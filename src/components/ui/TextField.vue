@@ -23,16 +23,6 @@
   const onInput = async () => {
     const inputElement = inputRef.value as HTMLInputElement
 
-    if (props.disabled) {
-      const oldText = props.modelValue
-
-      emit('update:modelValue', inputElement.value)
-      await nextTick()
-      emit('update:modelValue', oldText)
-
-      return
-    }
-
     const filteredValue = filterInput(inputElement.value)
     modelValue.value = filteredValue
 
@@ -57,7 +47,7 @@
     :class="{
       'van-field--error': error,
       'pr-32': props.asPassword,
-      'bg-gray-4': disabled,
+      'bg-gray-2': disabled,
     }"
   >
     <input
@@ -68,6 +58,7 @@
       @input="onInput"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
+      :disabled="disabled"
       class="van-field__control h-24 mt-2 bg-gray-3"
       placeholder="Введите текст"
     />
