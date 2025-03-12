@@ -40,6 +40,12 @@
   )
 
   const onInput = (fieldName: keyof typeof account.value) => {
+    if (fieldName === 'mark') {
+      const markAsInStore = accountMarkToStoreFormat(account.value.mark)
+
+      account.value.mark = markAsInStore.map((item) => item.text).join('; ')
+    }
+
     validateField(fieldName)
   }
 
