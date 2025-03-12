@@ -53,7 +53,6 @@
     }
 
     if (fieldName === 'password') {
-      console.log('account.value.password: ', account.value.password)
       error.value.password = !account.value.password
     }
 
@@ -75,8 +74,6 @@
   }
 
   const saveAccount = () => {
-    console.log('—> saveAccount()')
-
     accountStore.putAccount({
       ...account.value,
       mark: accountMarkToStoreFormat(account.value.mark),
