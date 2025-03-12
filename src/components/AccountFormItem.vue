@@ -101,13 +101,11 @@
       @focus="onFocus('login')"
       @blur="onInput('login')"
     />
-    <van-field
+    <PasswordField
       v-if="!isLdap"
-      v-model="account.password"
-      placeholder="Пароль"
+      :modelValue="account.password"
       :error="error.password"
       maxlength="100"
-      class="border border-solid border-gray-6 rounded-6"
       @focus="onFocus('password')"
       @blur="onInput('password')"
     />
